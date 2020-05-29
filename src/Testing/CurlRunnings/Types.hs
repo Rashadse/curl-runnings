@@ -212,7 +212,10 @@ data CurlCase = CurlCase
 
 instance FromJSON CurlCase
 
-instance ToJSON CurlCase
+instance ToJSON CurlCase where
+  toJSON CurlCase {name} =
+    object
+      [ "name" .= name]
 
 -- | Represents the different type of test failures we can have. A single test case
 -- | might return many assertion failures.
@@ -340,22 +343,17 @@ instance Show CaseResult where
     mconcat (map ((\s -> "\nAssertion failed: " <> s) . (<> "\n") . (T.pack . show)) failures)
 
 instance ToJSON CaseResult where
-  toJSON CasePass {curlCase, caseResponseHeaders, caseResponseValue, elapsedTime} =
+  toJSON CasePass {curlCase, elapsedTime} =
     object
       [ "testPassed" .= (Bool True)
       , "case" .= curlCase
-      , "responseHeaders" .= caseResponseHeaders
-      , "responseValue" .= caseResponseValue
       , "elapsedTimeSeconds" .= millisToS elapsedTime
       ]
-  toJSON CaseFail {curlCase, caseResponseHeaders, caseResponseValue, elapsedTime, failures} =
+  toJSON CaseFail {curlCase, elapsedTime} =
     object
       [ "testPassed" .= (Bool False)
       , "case" .= curlCase
-      , "responseHeaders" .= caseResponseHeaders
-      , "responseValue" .= caseResponseValue
       , "elapsedTimeSeconds" .= millisToS elapsedTime
-      , "failures" .= failures
       ]
 
 -- | A wrapper type around a set of test cases. This is the top level spec type
